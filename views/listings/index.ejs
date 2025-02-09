@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>highbnb</title>
+    <title>Highbnb</title>
 </head>
 <body>
     <h3>All listings</h3>
     <ul>
         <% for (let listing of alllistings) { %>
-            <li><a href="/listing/<%= listing.id %>"> <%= listing.title %> </a></li>
-          <% } %>  
+            <li><a href="/listings/<%= listing._id %>"> <%= listing.title %> </a></li>
+        <% } %>  
     </ul>
 </body>
 </html>
