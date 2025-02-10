@@ -3,8 +3,9 @@ const app = express()
 const mongoose = require("mongoose")
 const listing = require("./models/listing")
 const path = require("path")
-
-
+const methodOverride = require("method-override")
+app.use(methodOverride('_method'));
+const ejsmate = require("ejs-mate")
 
 async function main() {
     await mongoose.connect('mongodb://127.0.0.1:27017/highbnb');
@@ -18,6 +19,8 @@ main().then( () => {
 app.set("view engine" ,"ejs" );
 app.set("views" , path.join(__dirname, "views"))
 app.use(express.urlencoded ({extended : true}))
+app.engine("ejs" ,ejsmate)
+app.use(express.static(path.join(__dirname, "/public")));
 
 app.get("/" , (req,res) => {
     res.send("hi i am groot")
@@ -37,8 +40,8 @@ app.get("/listings/new" , (req,res) => {
 //show route
 app.get("/listings/:id", async (req, res) => {
     let { id } = req.params;
-    const foundListing = await listing.findById(id);
-    res.render("listings/show.ejs", { listing: foundListing });
+    const foundlisting = await listing.findById(id);
+    res.render("listings/show.ejs", { listing : foundlisting });
 });
 
 //create route
@@ -49,20 +52,27 @@ app.post("/listings" ,async (req,res) => {
     res.redirect("/listings")
 })
 
+//edit route
+app.get("/listings/:id/edit" , async (req,res) => {
+    let {id } = req.params;
+    const foundlisting = await listing.findById(id);
+    res.render("listings/edit.ejs" , {listing : foundlisting})
 
-// app.get("/testlisting" , async (req,res) => {
-//     let samplelisting = new listing({
-//         title : "my new villa",
-//         description : "by the beach",
-//         price : 1200,
-//         location : "calangaute, goa",
-//         country : "india",
-//     });
-//     await samplelisting.save();
-//     console.log(`sample was saved`)
-//     res.send("connecting successfull")
-   
-// })
+})
+
+//update route
+app.put("/listings/:id" ,async (req,res) => {
+    let {id } = req.params
+    await listing.findByIdAndUpdate(id, {...req.body.listing})
+    res.redirect(`/listings/${id}`)
+})
+
+//delte route
+app.delete("/listings/:id" ,async(req,res) => {
+    let {id} = req.params;
+    let deltedlisting = await listing.findByIdAndDelete(id);
+    res.redirect("/listings")
+})
 
 app.listen(8080, () => {
     console.log(`server is listening to port 8080`)
